@@ -1821,7 +1821,8 @@
 
         function playSound(inst) {
             if (!audioContext) return;
-            
+            if (audioContext.state !== 'running') return;
+
             const now = audioContext.currentTime;
             
             switch(inst) {
@@ -1990,8 +1991,14 @@
         function play() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Force-suspend on creation: only an in-iframe user gesture
+                // (via unlockAudio below) will resume. Prevents audio from
+                // leaking during TikTok-feed preload, where the parent tab
+                // may already have user activity and the autoplay policy
+                // would otherwise let the new context start in 'running'.
+                if (!userGesturedHere) audioContext.suspend().catch(() => {});
             }
-            
+
             if (!isPlaying) {
                 isPlaying = true;
                 const tempo = parseInt(document.getElementById('tempoSlider').value);
@@ -2292,7 +2299,9 @@
             return true;
         }
 
+        let userGesturedHere = false;
         function unlockAudio() {
+            userGesturedHere = true;
             if (audioContext && audioContext.state === 'suspended') {
                 audioContext.resume().catch(() => {});
             }
