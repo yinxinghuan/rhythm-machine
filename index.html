@@ -1825,18 +1825,39 @@
             const now = audioContext.currentTime;
             
             switch(inst) {
-                case 'kick':
+                case 'kick': {
                     const kickOsc = audioContext.createOscillator();
                     const kickGain = audioContext.createGain();
+                    kickOsc.type = 'sine';
                     kickOsc.connect(kickGain);
                     kickGain.connect(audioContext.destination);
-                    kickOsc.frequency.setValueAtTime(60, now);
-                    kickOsc.frequency.exponentialRampToValueAtTime(0.01, now + 0.5);
-                    kickGain.gain.setValueAtTime(1, now);
-                    kickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    kickOsc.frequency.setValueAtTime(150, now);
+                    kickOsc.frequency.exponentialRampToValueAtTime(40, now + 0.18);
+                    kickGain.gain.setValueAtTime(0.0001, now);
+                    kickGain.gain.exponentialRampToValueAtTime(0.9, now + 0.005);
+                    kickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
                     kickOsc.start(now);
-                    kickOsc.stop(now + 0.5);
+                    kickOsc.stop(now + 0.32);
+
+                    const clickBuffer = audioContext.createBuffer(1, Math.floor(audioContext.sampleRate * 0.01), audioContext.sampleRate);
+                    const clickData = clickBuffer.getChannelData(0);
+                    for (let i = 0; i < clickBuffer.length; i++) {
+                        clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.002));
+                    }
+                    const clickSrc = audioContext.createBufferSource();
+                    const clickGain = audioContext.createGain();
+                    const clickFilter = audioContext.createBiquadFilter();
+                    clickFilter.type = 'highpass';
+                    clickFilter.frequency.value = 1500;
+                    clickSrc.buffer = clickBuffer;
+                    clickSrc.connect(clickFilter);
+                    clickFilter.connect(clickGain);
+                    clickGain.connect(audioContext.destination);
+                    clickGain.gain.setValueAtTime(0.25, now);
+                    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+                    clickSrc.start(now);
                     break;
+                }
                     
                 case 'snare':
                     const snareBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
