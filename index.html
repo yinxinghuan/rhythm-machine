@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="808-style step-sequencer drum machine with adjustable step count">
+
+    <title>Rhythm Machine</title>
+    <style>
+        @font-face {
+            font-family: 'Exo 2';
+            font-style: normal;
+            font-weight: 300;
+            src: url('https://fonts.gstatic.com/s/exo2/v21/7cH1v4okm5zmbvwkAx_sfcEuiD8jvvKcPtq-rpvLpQ.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Exo 2';
+            font-style: normal;
+            font-weight: 400;
+            src: url('https://fonts.gstatic.com/s/exo2/v21/7cH1v4okm5zmbvwkAx_sfcEuiD8jWPKcPtq-rpvLpQ.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Exo 2';
+            font-style: normal;
+            font-weight: 600;
+            src: url('https://fonts.gstatic.com/s/exo2/v21/7cH1v4okm5zmbvwkAx_sfcEuiD8jkvWcPtq-rpvLpQ.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Exo 2';
+            font-style: normal;
+            font-weight: 700;
+            src: url('https://fonts.gstatic.com/s/exo2/v21/7cH1v4okm5zmbvwkAx_sfcEuiD8jq_WcPtq-rpvLpQ.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Orbitron';
+            font-style: normal;
+            font-weight: 400;
+            src: url('https://fonts.gstatic.com/s/orbitron/v31/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1nyGy6xpmIyXjU1pg.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Orbitron';
+            font-style: normal;
+            font-weight: 600;
+            src: url('https://fonts.gstatic.com/s/orbitron/v31/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1ny5yuxpmIyXjU1pg.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Orbitron';
+            font-style: normal;
+            font-weight: 700;
+            src: url('https://fonts.gstatic.com/s/orbitron/v31/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1ny3iuxpmIyXjU1pg.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Orbitron';
+            font-style: normal;
+            font-weight: 900;
+            src: url('https://fonts.gstatic.com/s/orbitron/v31/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1nyjCuxpmIyXjU1pg.woff2') format('woff2');
+        }
+        
+        @font-face {
+            font-family: 'VT323';
+            font-style: normal;
+            font-weight: 400;
+            src: url('https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJXUdVNF.woff2') format('woff2');
+        }
+        
+        :root {
+            --metal-dark: #0d0d0d;
+            --metal-medium: #1a1a1a;
+            --metal-light: #242424;
+            --metal-highlight: #2d2d2d;
+            --chrome: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            --led-red: #8b0000;
+            --led-red-glow: #ff0000;
+            --led-amber: #cc6600;
+            --led-amber-glow: #ff9933;
+            --led-green: #00cc00;
+            --led-green-glow: #00ff41;
+            --led-off: #1a0000;
+            --screen-bg: #0f1410;
+            --screen-text: #7aad7a;
+            --screen-glow: #8ecf8e;
+            --button-red: #2d0000;
+            --button-red-lit: #4a0000;
+            --button-gray: #1a1a1a;
+            --bezel: linear-gradient(135deg, #2a2a2a 0%, #0d0d0d 50%, #1a1a1a 100%);
+            --text-primary: #b0b0b0;
+            --text-secondary: #888888;
+            --text-muted: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: #000000;
+            color: var(--screen-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 15px 20px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .drum-machine {
+            background: var(--chrome);
+            border: 4px solid #000;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 920px;
+            padding: 25px 35px;
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.95),
+                inset 0 2px 1px rgba(255, 255, 255, 0.05),
+                inset 0 -2px 1px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .drum-machine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.03) 50%, 
+                transparent 100%);
+        }
+
+        .header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .status-display {
+            background: var(--screen-bg);
+            border: 4px solid #000;
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 280px;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.95),
+                inset 0 6px 12px rgba(0, 0, 0, 0.9),
+                0 1px 0 rgba(255, 255, 255, 0.02);
+            position: relative;
+        }
+
+        .status-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(122, 173, 122, 0.02) 2px,
+                    rgba(122, 173, 122, 0.02) 4px
+                );
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+        .status-display::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+        .status-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-line {
+            font-family: 'VT323', monospace;
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--screen-text);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-icon {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--led-off);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9);
+            flex-shrink: 0;
+        }
+
+        .status-icon.active {
+            background: var(--led-red);
+            box-shadow: 
+                inset 0 1px 2px rgba(0, 0, 0, 0.6),
+                0 0 8px var(--led-red-glow);
+        }
+
+        .status-icon.generating {
+            background: var(--led-amber);
+            box-shadow: 
+                inset 0 1px 2px rgba(0, 0, 0, 0.6),
+                0 0 8px var(--led-amber-glow);
+            animation: blink 0.5s infinite;
+        }
+
+        .status-icon.success {
+            background: var(--led-green);
+            box-shadow: 
+                inset 0 1px 2px rgba(0, 0, 0, 0.6),
+                0 0 8px var(--led-green-glow);
+        }
+
+        .status-text {
+            flex: 1;
+            text-shadow: 0 0 6px rgba(122, 173, 122, 0.5);
+        }
+
+        .status-text.highlight {
+            color: var(--screen-glow);
+            text-shadow: 0 0 8px rgba(142, 207, 142, 0.8);
+            animation: textGlow 0.3s ease-out;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { 
+                text-shadow: 0 0 6px rgba(122, 173, 122, 0.5);
+            }
+            50% { 
+                text-shadow: 0 0 12px rgba(142, 207, 142, 1);
+            }
+        }
+
+        .status-bar {
+            margin-top: 8px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #000;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar-fill {
+            height: 100%;
+            background: var(--screen-glow);
+            width: 0%;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 6px var(--screen-glow);
+        }
+
+        .brand-plate {
+            background: transparent;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .brand-logo {
+            height: 32px;
+            width: auto;
+            opacity: 0.55;
+            filter: brightness(0.7);
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 400;
+            letter-spacing: 6px;
+            color: #606060;
+            line-height: 1;
+        }
+
+        .subtitle {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 8px;
+            font-weight: 400;
+            letter-spacing: 4.5px;
+            color: #484848;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .screen-section {
+            background: var(--screen-bg);
+            border: 4px solid #000;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow:
+                inset 0 0 30px rgba(0, 0, 0, 0.95),
+                inset 0 6px 12px rgba(0, 0, 0, 0.9),
+                0 1px 0 rgba(255, 255, 255, 0.02);
+            position: relative;
+        }
+
+        .ai-section {
+            margin-top: 16px;
+            margin-bottom: 0;
+            padding: 12px 14px;
+        }
+
+        .ai-section .ai-input {
+            margin-bottom: 0;
+        }
+
+        .screen-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(122, 173, 122, 0.02) 2px,
+                    rgba(122, 173, 122, 0.02) 4px
+                );
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+        .screen-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+        .ai-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #000;
+            border-radius: 4px;
+            padding: 10px 14px;
+            color: var(--screen-text);
+            font-family: 'Exo 2', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            box-shadow: 
+                inset 0 3px 8px rgba(0, 0, 0, 0.9),
+                inset 0 1px 2px rgba(0, 0, 0, 0.95);
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .input-field:focus {
+            color: var(--screen-glow);
+            text-shadow: 0 0 6px rgba(142, 207, 142, 0.4);
+        }
+
+        .input-field::placeholder {
+            color: rgba(122, 173, 122, 0.4);
+        }
+
+        .idea-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .idea-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(122, 173, 122, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-right: 6px;
+        }
+
+        .btn svg {
+            vertical-align: -1px;
+            margin-right: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            background: linear-gradient(180deg, #2a2a2a 0%, #0d0d0d 50%, #1a1a1a 100%);
+            border: 2px solid #000;
+            border-radius: 5px;
+            padding: 10px 18px;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            box-shadow: 
+                0 3px 0 #000,
+                0 5px 8px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.8);
+            transition: all 0.08s;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 5px;
+            right: 5px;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.04), 
+                transparent);
+            border-radius: 50%;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: linear-gradient(180deg, #333 0%, #1a1a1a 50%, #2a2a2a 100%);
+            color: var(--text-primary);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 
+                0 2px 0 #000,
+                0 3px 6px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04),
+                inset 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn.primary {
+            background: linear-gradient(180deg, #3a0000 0%, #1a0000 50%, #2d0000 100%);
+            color: #aa8888;
+        }
+
+        .btn.primary:hover:not(:disabled) {
+            background: linear-gradient(180deg, #4a0000 0%, #2d0000 50%, #3a0000 100%);
+            color: #ccaaaa;
+        }
+
+        .btn.idea-btn {
+            padding: 7px 13px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%);
+        }
+
+        .btn.idea-btn:hover {
+            color: var(--text-primary);
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .transport-panel {
+            background: var(--bezel);
+            border: 3px solid #000;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 
+                inset 0 2px 6px rgba(0, 0, 0, 0.8),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.02),
+                0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .transport {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .transport-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tempo-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .steps-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .steps-btn {
+            min-width: 32px;
+            padding: 7px 10px;
+            font-size: 16px;
+            line-height: 1;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+
+        .steps-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .steps-control .tempo-value {
+            min-width: 44px;
+            padding: 8px 8px;
+        }
+
+        .tempo-label {
+            color: var(--text-secondary);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 1px 0 #000;
+        }
+
+        .tempo-slider {
+            width: 120px;
+            height: 8px;
+            background: linear-gradient(180deg, #000, #0d0d0d);
+            border: 2px solid #000;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+            box-shadow: 
+                inset 0 3px 6px rgba(0, 0, 0, 0.95),
+                inset 0 1px 2px rgba(0, 0, 0, 0.9);
+        }
+
+        .tempo-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle, #3a3a3a 0%, #1a1a1a 50%, #0d0d0d 100%);
+            border: 3px solid #000;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 
+                0 3px 6px rgba(0, 0, 0, 0.9),
+                inset 0 2px 1px rgba(255, 255, 255, 0.08),
+                inset 0 -2px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .tempo-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--screen-text);
+            min-width: 55px;
+            text-align: center;
+            background: var(--screen-bg);
+            padding: 8px 12px;
+            border: 3px solid #000;
+            border-radius: 5px;
+            box-shadow: 
+                inset 0 3px 8px rgba(0, 0, 0, 0.95),
+                inset 0 1px 2px rgba(0, 0, 0, 0.9),
+                0 1px 0 rgba(255, 255, 255, 0.02);
+            letter-spacing: 1px;
+            text-shadow: 0 0 6px rgba(122, 173, 122, 0.5);
+        }
+
+        .sequencer {
+            background: linear-gradient(145deg, #0d0d0d, #1a1a1a);
+            border: 4px solid #000;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            box-shadow:
+                inset 0 4px 12px rgba(0, 0, 0, 0.95),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02),
+                0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .track {
+            display: grid;
+            --rm-label-w: 70px;
+            --rm-mute-w: 26px;
+            --rm-spacer-w: 10px;
+            --rm-cell: minmax(22px, 1fr);
+            grid-template-columns: var(--rm-grid-cols);
+            gap: 5px;
+            align-items: center;
+            margin-bottom: 10px;
+            min-width: max-content;
+        }
+
+        .track-spacer {
+            width: 100%;
+            height: 1px;
+        }
+
+        .track:last-child {
+            margin-bottom: 0;
+        }
+
+        .track-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            text-align: right;
+            padding-right: 10px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .mute-btn {
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle, #2a2a2a 0%, #1a1a1a 100%);
+            border: 2px solid #000;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.08s;
+            position: relative;
+            box-shadow: 
+                0 2px 0 #000,
+                0 4px 6px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -2px 3px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .mute-btn::before {
+            content: 'M';
+        }
+
+        .mute-btn:hover {
+            background: radial-gradient(circle, #3a3a3a 0%, #2a2a2a 100%);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 3px 0 #000,
+                0 5px 8px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .mute-btn:active {
+            transform: translateY(1px);
+            box-shadow: 
+                0 1px 0 #000,
+                0 2px 4px rgba(0, 0, 0, 0.8),
+                inset 0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .mute-btn.muted {
+            background: radial-gradient(circle, var(--led-red) 0%, #330000 100%);
+            color: #ff6666;
+            box-shadow: 
+                0 2px 0 #1a0000,
+                0 4px 6px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 0 10px rgba(139, 0, 0, 0.3),
+                0 0 8px rgba(139, 0, 0, 0.2);
+            text-shadow: 0 0 6px rgba(255, 102, 102, 0.8);
+        }
+
+        .mute-btn.muted::before {
+            content: 'M';
+        }
+
+        .track.muted .step {
+            opacity: 0.3;
+        }
+
+        .track.muted .track-label {
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+
+        .step {
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%;
+            background: radial-gradient(circle, #2a2a2a 0%, #1a1a1a 100%);
+            border: 2px solid #000;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.08s;
+            position: relative;
+            box-shadow: 
+                0 3px 0 #000,
+                0 5px 8px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -2px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .step {
+                min-width: 32px;
+                min-height: 32px;
+            }
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70%;
+            height: 70%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(139, 0, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.08s;
+        }
+
+        .step:hover::before {
+            opacity: 0.5;
+        }
+
+        .step:hover {
+            background: radial-gradient(circle, #3a3a3a 0%, #2a2a2a 100%);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 0 #000,
+                0 6px 10px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 0 8px rgba(255, 255, 255, 0.02);
+        }
+
+        .step:active {
+            transform: translateY(1px);
+            box-shadow: 
+                0 2px 0 #000,
+                0 3px 6px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02),
+                inset 0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .step.active {
+            background: radial-gradient(circle, var(--led-amber) 0%, #331a00 100%);
+            box-shadow: 
+                0 3px 0 #1a0d00,
+                0 5px 8px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 0 10px rgba(204, 102, 0, 0.3),
+                0 0 8px rgba(204, 102, 0, 0.2);
+        }
+
+        .step.active::before {
+            opacity: 1;
+            background: radial-gradient(circle, rgba(255, 153, 51, 0.4) 0%, transparent 60%);
+        }
+
+        .step.playing {
+            animation: pulse 0.1s ease-out;
+        }
+
+        .step.active.playing {
+            background: radial-gradient(circle, var(--led-amber-glow) 0%, var(--led-amber) 100%);
+            box-shadow: 
+                0 3px 0 #1a0d00,
+                0 5px 8px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 0 12px rgba(255, 153, 51, 0.5),
+                0 0 12px rgba(255, 153, 51, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .presets-panel {
+            background: var(--bezel);
+            border: 3px solid #000;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 
+                inset 0 2px 6px rgba(0, 0, 0, 0.8),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.02),
+                0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .preset-btn {
+            flex: 1 1 calc(25% - 10px);
+            min-width: 84px;
+            padding: 14px 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        .status-message {
+            position: fixed;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--screen-bg);
+            border: 3px solid #000;
+            border-radius: 6px;
+            padding: 14px 28px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: var(--screen-text);
+            display: none;
+            animation: slideUp 0.3s ease-out;
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.9),
+                inset 0 3px 8px rgba(0, 0, 0, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            z-index: 1000;
+            text-shadow: 0 0 6px rgba(122, 173, 122, 0.5);
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.error {
+            color: #ff6666;
+            text-shadow: 0 0 6px rgba(255, 102, 102, 0.5);
+        }
+
+        .status-message.success {
+            color: var(--screen-glow);
+            text-shadow: 0 0 8px rgba(142, 207, 142, 0.6);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .screw {
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, #2a2a2a 0%, #0d0d0d 60%, #000 100%);
+            border: 1px solid #000;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 
+                inset 0 2px 3px rgba(255, 255, 255, 0.04),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.9),
+                0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .screw::before,
+        .screw::after {
+            content: '';
+            position: absolute;
+            background: #000;
+            top: 50%;
+            left: 50%;
+        }
+
+        .screw::before {
+            width: 9px;
+            height: 1.5px;
+            transform: translate(-50%, -50%);
+        }
+
+        .screw::after {
+            width: 1.5px;
+            height: 9px;
+            transform: translate(-50%, -50%);
+        }
+
+        .screw.top-left { top: 12px; left: 12px; }
+        .screw.top-right { top: 12px; right: 12px; }
+        .screw.bottom-left { bottom: 12px; left: 12px; }
+        .screw.bottom-right { bottom: 12px; right: 12px; }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 5px;
+                overflow-x: hidden;
+            }
+
+            .drum-machine {
+                padding: 15px 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 15px;
+            }
+
+            .status-display {
+                min-width: 100%;
+                padding: 10px 12px;
+            }
+
+            .status-line {
+                font-size: 14px;
+                margin-bottom: 3px;
+            }
+
+            .status-icon {
+                width: 5px;
+                height: 5px;
+            }
+
+            .status-bar {
+                height: 3px;
+                margin-top: 6px;
+            }
+
+            .brand-plate {
+                text-align: center;
+                width: 100%;
+            }
+
+            .logo {
+                font-size: 24px;
+                letter-spacing: 5px;
+            }
+
+            .subtitle {
+                font-size: 7px;
+                letter-spacing: 3.5px;
+            }
+
+            .screen-section {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .ai-input {
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .input-field {
+                padding: 12px 14px;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .btn.primary {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .idea-buttons {
+                gap: 6px;
+            }
+
+            .idea-label {
+                width: 100%;
+                margin-bottom: 4px;
+                font-size: 11px;
+            }
+
+            .btn.idea-btn {
+                padding: 8px 12px;
+                font-size: 10px;
+            }
+
+            .transport-panel {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .transport {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .transport-controls {
+                width: 100%;
+                justify-content: space-between;
+                gap: 6px;
+            }
+
+            .transport-controls .btn {
+                flex: 1;
+                padding: 12px 8px;
+                font-size: 11px;
+                letter-spacing: 0.5px;
+            }
+
+            .tempo-control {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .tempo-slider {
+                flex: 1;
+                width: auto;
+                min-width: 80px;
+            }
+
+            .tempo-value {
+                font-size: 14px;
+                padding: 8px 12px;
+                min-width: 50px;
+            }
+
+            .sequencer {
+                padding: 8px 4px;
+                margin-bottom: 15px;
+                overflow-x: auto;
+                overflow-y: visible;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .track {
+                --rm-label-w: 55px;
+                --rm-mute-w: 30px;
+                --rm-spacer-w: 6px;
+                --rm-cell: minmax(32px, 1fr);
+                gap: 4px;
+                margin-bottom: 8px;
+                min-width: max-content;
+            }
+
+            .track-label {
+                font-size: 9px;
+                letter-spacing: 0.3px;
+                padding-right: 4px;
+                position: sticky;
+                left: 0;
+                background: linear-gradient(145deg, #0d0d0d, #1a1a1a);
+                z-index: 2;
+            }
+
+            .mute-btn {
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+                min-height: 28px;
+                font-size: 9px;
+                position: sticky;
+                left: 55px;
+                background: radial-gradient(circle, #2a2a2a 0%, #1a1a1a 100%);
+                z-index: 2;
+            }
+
+            .track-spacer {
+                width: 6px;
+                height: 100%;
+            }
+
+            .step {
+                width: 100%;
+                height: 0;
+                padding-bottom: 100%;
+                min-width: 32px;
+                min-height: 32px;
+                border-width: 2px;
+                border-radius: 3px;
+            }
+
+            .step::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 60%;
+                height: 60%;
+                transform: translate(-50%, -50%);
+                background: radial-gradient(circle, rgba(139, 0, 0, 0.3) 0%, transparent 70%);
+                border-radius: 50%;
+                opacity: 0;
+                transition: opacity 0.08s;
+            }
+
+            .sequencer::after {
+                content: '← slide to see more →';
+                display: block;
+                text-align: center;
+                font-size: 11px;
+                color: rgba(122, 173, 122, 0.5);
+                margin-top: 8px;
+                font-family: 'Exo 2', sans-serif;
+                animation: fadeInOut 3s ease-in-out infinite;
+            }
+
+            @keyframes fadeInOut {
+                0%, 100% { opacity: 0.3; }
+                50% { opacity: 0.6; }
+            }
+
+            .presets-panel {
+                padding: 12px;
+            }
+
+            .presets {
+                gap: 6px;
+            }
+
+            .preset-btn {
+                padding: 10px 14px;
+                font-size: 11px;
+                flex: 1 1 calc(33.333% - 6px);
+                min-width: 0;
+            }
+
+            .screw {
+                width: 10px;
+                height: 10px;
+            }
+
+            .screw::before {
+                width: 6px;
+                height: 1px;
+            }
+
+            .screw::after {
+                width: 1px;
+                height: 6px;
+            }
+
+            .screw.top-left { top: 8px; left: 8px; }
+            .screw.top-right { top: 8px; right: 8px; }
+            .screw.bottom-left { bottom: 8px; left: 8px; }
+            .screw.bottom-right { bottom: 8px; right: 8px; }
+
+            .status-message {
+                font-size: 12px;
+                padding: 12px 20px;
+                bottom: 20px;
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .drum-machine {
+                padding: 12px 8px;
+                border-width: 2px;
+                border-radius: 12px;
+            }
+
+            .header {
+                margin-bottom: 12px;
+            }
+
+            .status-display {
+                padding: 8px 10px;
+                border-width: 2px;
+            }
+
+            .logo {
+                font-size: 20px;
+                letter-spacing: 4px;
+            }
+
+            .screen-section {
+                padding: 10px;
+                border-width: 2px;
+            }
+
+            .transport-panel {
+                padding: 10px;
+                border-width: 2px;
+            }
+
+            .transport-controls .btn {
+                padding: 10px 6px;
+                font-size: 10px;
+            }
+
+            .tempo-label {
+                font-size: 9px;
+            }
+
+            .sequencer {
+                padding: 6px 3px;
+                border-width: 2px;
+            }
+
+            .track {
+                --rm-label-w: 48px;
+                --rm-mute-w: 26px;
+                --rm-spacer-w: 5px;
+                --rm-cell: minmax(30px, 1fr);
+                gap: 3px;
+                margin-bottom: 6px;
+            }
+
+            .track-label {
+                font-size: 8px;
+                letter-spacing: 0.2px;
+            }
+
+            .mute-btn {
+                width: 24px;
+                height: 24px;
+                min-width: 24px;
+                min-height: 24px;
+                font-size: 8px;
+                left: 48px;
+            }
+
+            .track-spacer {
+                width: 5px;
+            }
+
+            .step {
+                min-width: 30px;
+                min-height: 30px;
+                border-width: 1.5px;
+                border-radius: 2px;
+            }
+
+            .presets-panel {
+                padding: 10px;
+                border-width: 2px;
+            }
+
+            .preset-btn {
+                padding: 9px 12px;
+                font-size: 10px;
+            }
+
+            .sequencer::after {
+                font-size: 10px;
+                margin-top: 6px;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            .header {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .status-display {
+                min-width: 250px;
+                width: auto;
+            }
+
+            .brand-plate {
+                text-align: right;
+            }
+
+            .transport {
+                flex-direction: row;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            .transport-controls {
+                width: auto;
+                flex: 1;
+                min-width: 300px;
+            }
+
+            .tempo-control {
+                width: auto;
+                flex: 1;
+                min-width: 200px;
+            }
+
+            .tempo-slider {
+                width: 100px;
+            }
+
+            .sequencer {
+                padding: 12px 8px;
+            }
+
+            .track {
+                --rm-label-w: 50px;
+                --rm-mute-w: 28px;
+                --rm-spacer-w: 6px;
+                --rm-cell: minmax(28px, 1fr);
+                gap: 4px;
+            }
+
+            .step {
+                min-width: 28px;
+                min-height: 28px;
+            }
+
+            .mute-btn {
+                left: 50px;
+            }
+
+            .sequencer::after {
+                content: '← slide →';
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            .track {
+                --rm-label-w: 70px;
+                --rm-mute-w: 26px;
+                --rm-spacer-w: 10px;
+                --rm-cell: minmax(0, 1fr);
+            }
+            
+            .sequencer {
+                overflow-x: visible;
+            }
+            
+            .sequencer::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="drum-machine">
+        <div class="screw top-left"></div>
+        <div class="screw top-right"></div>
+        <div class="screw bottom-left"></div>
+        <div class="screw bottom-right"></div>
+
+        <div class="header">
+            <div class="status-display">
+                <div class="status-content">
+                    <div class="status-line">
+                        <div class="status-icon" id="statusIcon1"></div>
+                        <div class="status-text" id="statusText1">SYSTEM READY</div>
+                    </div>
+                    <div class="status-line">
+                        <div class="status-icon" id="statusIcon2"></div>
+                        <div class="status-text" id="statusText2">TEMPO: 120 BPM</div>
+                    </div>
+                    <div class="status-line">
+                        <div class="status-icon" id="statusIcon3"></div>
+                        <div class="status-text" id="statusText3">PATTERN: EMPTY</div>
+                    </div>
+                    <div class="status-bar">
+                        <div class="status-bar-fill" id="statusBar"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="brand-plate">
+                <img class="brand-logo" src="img/aigram.svg" alt="Aigram" draggable="false">
+                <div class="subtitle">RHYTHM MACHINE</div>
+            </div>
+        </div>
+
+        <div class="transport-panel">
+            <div class="transport">
+                <div class="transport-controls">
+                    <button class="btn" id="playBtn"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="2,0 12,6 2,12"/></svg> PLAY</button>
+                    <button class="btn" id="stopBtn"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="1" width="10" height="10"/></svg> STOP</button>
+                    <button class="btn" id="clearBtn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg> CLEAR</button>
+                    <button class="btn" id="randomBtn"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="3" cy="3" r="1.5"/><circle cx="9" cy="3" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="3" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/></svg> RANDOM</button>
+                </div>
+                <div class="tempo-control">
+                    <span class="tempo-label">TEMPO</span>
+                    <input type="range" class="tempo-slider" id="tempoSlider" min="60" max="180" value="120" />
+                    <span class="tempo-value" id="tempoValue">120</span>
+                </div>
+                <div class="steps-control">
+                    <span class="tempo-label">STEPS</span>
+                    <button class="btn steps-btn" id="stepsMinus" type="button" aria-label="decrease steps">−</button>
+                    <span class="tempo-value" id="stepsValue">8</span>
+                    <button class="btn steps-btn" id="stepsPlus" type="button" aria-label="increase steps">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sequencer">
+            <div class="track" data-instrument="kick">
+                <div class="track-label">KICK</div>
+                <div class="mute-btn" data-instrument="kick"></div>
+            </div>
+            <div class="track" data-instrument="snare">
+                <div class="track-label">SNARE</div>
+                <div class="mute-btn" data-instrument="snare"></div>
+            </div>
+            <div class="track" data-instrument="hihat">
+                <div class="track-label">HI-HAT</div>
+                <div class="mute-btn" data-instrument="hihat"></div>
+            </div>
+            <div class="track" data-instrument="openhat">
+                <div class="track-label">OPEN-HAT</div>
+                <div class="mute-btn" data-instrument="openhat"></div>
+            </div>
+            <div class="track" data-instrument="clap">
+                <div class="track-label">CLAP</div>
+                <div class="mute-btn" data-instrument="clap"></div>
+            </div>
+            <div class="track" data-instrument="rim">
+                <div class="track-label">RIM</div>
+                <div class="mute-btn" data-instrument="rim"></div>
+            </div>
+            <div class="track" data-instrument="tom">
+                <div class="track-label">TOM</div>
+                <div class="mute-btn" data-instrument="tom"></div>
+            </div>
+            <div class="track" data-instrument="cowbell">
+                <div class="track-label">COWBELL</div>
+                <div class="mute-btn" data-instrument="cowbell"></div>
+            </div>
+        </div>
+
+        <div class="presets-panel">
+            <div class="presets">
+                <button class="btn preset-btn" data-preset="techno">TECHNO</button>
+                <button class="btn preset-btn" data-preset="house">HOUSE</button>
+                <button class="btn preset-btn" data-preset="trap">TRAP</button>
+                <button class="btn preset-btn" data-preset="breakbeat">BREAK</button>
+                <button class="btn preset-btn" data-preset="minimal">MINIMAL</button>
+                <button class="btn preset-btn" data-preset="dnb">DnB</button>
+                <button class="btn preset-btn" data-preset="reggaeton">REGGAETON</button>
+            </div>
+        </div>
+
+        <div class="screen-section ai-section">
+            <div class="ai-input">
+                <input
+                    type="text"
+                    class="input-field"
+                    id="beatInput"
+                    placeholder="> describe a beat (e.g. lofi chill)"
+                    autocomplete="off"
+                />
+                <button class="btn primary" id="generateBtn">AI GENERATE</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <script>
+        let STEPS = 8;
+        const MIN_STEPS = 4;
+        const MAX_STEPS = 32;
+        const PRESET_STEPS = 16;
+        const instruments = ['kick', 'snare', 'hihat', 'openhat', 'clap', 'rim', 'tom', 'cowbell'];
+        
+        const presets = {
+            techno: {
+                kick:    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare:   [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat:   [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                clap:    [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                rim:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                tom:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                cowbell: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0]
+            },
+            house: {
+                kick:    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare:   [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                hihat:   [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                openhat: [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                clap:    [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                rim:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                tom:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                cowbell: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            trap: {
+                kick:    [1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0],
+                snare:   [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                hihat:   [1,0,1,0,1,0,1,0,1,1,0,1,0,1,1,1],
+                openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+                clap:    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                rim:     [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
+                tom:     [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],
+                cowbell: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            breakbeat: {
+                kick:    [1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0],
+                snare:   [0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0],
+                hihat:   [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+                openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+                clap:    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                rim:     [0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0],
+                tom:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                cowbell: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            minimal: {
+                kick:    [1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+                snare:   [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                hihat:   [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],
+                openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                clap:    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                rim:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                tom:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                cowbell: [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0]
+            },
+            dnb: {
+                kick:    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                snare:   [0,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0],
+                hihat:   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+                clap:    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                rim:     [0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0],
+                tom:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                cowbell: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            },
+            reggaeton: {
+                kick:    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                snare:   [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
+                hihat:   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                openhat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                clap:    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                rim:     [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                tom:     [0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0],
+                cowbell: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            }
+        };
+
+        const styleKeywords = {
+            techno: ['techno', 'industrial', 'rave', 'berlin', 'acid', 'hard'],
+            house: ['house', 'disco', 'four on the floor', '4/4', 'dance', 'club'],
+            trap: ['trap', 'drill', 'aggressive', 'hip hop', 'rap', 'bass heavy'],
+            breakbeat: ['break', 'jungle', 'amen', 'chopped', 'funk', 'soul'],
+            minimal: ['minimal', 'ambient', 'sparse', 'simple', 'space', 'chill', 'downtempo'],
+            dnb: ['drum and bass', 'dnb', 'fast', 'jungle', 'neurofunk', 'liquid'],
+            reggaeton: ['reggaeton', 'latin', 'dembow', 'perreo', 'spanish']
+        };
+
+        let audioContext;
+        let isPlaying = false;
+        let currentStep = 0;
+        let intervalId = null;
+        let pattern = {};
+        let mutedTracks = {};
+
+        instruments.forEach(inst => {
+            pattern[inst] = new Array(STEPS).fill(0);
+            mutedTracks[inst] = false;
+        });
+
+        function updateStatusDisplay(status, message, progress = null) {
+            const icon1 = document.getElementById('statusIcon1');
+            const text1 = document.getElementById('statusText1');
+            const icon2 = document.getElementById('statusIcon2');
+            const text2 = document.getElementById('statusText2');
+            const icon3 = document.getElementById('statusIcon3');
+            const text3 = document.getElementById('statusText3');
+            const bar = document.getElementById('statusBar');
+
+            switch(status) {
+                case 'playing':
+                    icon1.className = 'status-icon active';
+                    text1.textContent = '▶ PLAYING';
+                    text1.classList.add('highlight');
+                    setTimeout(() => text1.classList.remove('highlight'), 300);
+                    break;
+                    
+                case 'stopped':
+                    icon1.className = 'status-icon';
+                    text1.textContent = '■ STOPPED';
+                    text1.classList.add('highlight');
+                    setTimeout(() => text1.classList.remove('highlight'), 300);
+                    break;
+                    
+                case 'generating':
+                    icon1.className = 'status-icon generating';
+                    text1.textContent = '⚙ AI ANALYZING...';
+                    text1.classList.add('highlight');
+                    if (progress !== null) {
+                        bar.style.width = progress + '%';
+                    }
+                    break;
+                    
+                case 'success':
+                    icon1.className = 'status-icon success';
+                    text1.textContent = '✓ ' + message;
+                    text1.classList.add('highlight');
+                    bar.style.width = '100%';
+                    setTimeout(() => {
+                        text1.textContent = 'SYSTEM READY';
+                        text1.classList.remove('highlight');
+                        icon1.className = 'status-icon';
+                        bar.style.width = '0%';
+                    }, 2500);
+                    break;
+                    
+                case 'error':
+                    icon1.className = 'status-icon active';
+                    text1.textContent = '✗ ERROR';
+                    text1.classList.add('highlight');
+                    bar.style.width = '0%';
+                    setTimeout(() => icon1.className = 'status-icon', 200);
+                    setTimeout(() => icon1.className = 'status-icon active', 400);
+                    setTimeout(() => {
+                        text1.textContent = 'SYSTEM READY';
+                        text1.classList.remove('highlight');
+                        icon1.className = 'status-icon';
+                    }, 1500);
+                    break;
+                    
+                case 'tempo':
+                    text2.textContent = 'TEMPO: ' + message + ' BPM';
+                    text2.classList.add('highlight');
+                    setTimeout(() => text2.classList.remove('highlight'), 300);
+                    break;
+                    
+                case 'pattern':
+                    icon3.className = 'status-icon success';
+                    text3.textContent = 'PATTERN: ' + message;
+                    text3.classList.add('highlight');
+                    setTimeout(() => {
+                        text3.classList.remove('highlight');
+                        icon3.className = 'status-icon';
+                    }, 2500);
+                    break;
+                    
+                case 'ready':
+                    icon1.className = 'status-icon';
+                    text1.textContent = 'SYSTEM READY';
+                    break;
+            }
+        }
+
+        function buildGridCols(steps) {
+            const cols = ['var(--rm-label-w)', 'var(--rm-mute-w)'];
+            for (let i = 0; i < steps; i++) {
+                if (i > 0 && i % 4 === 0) cols.push('var(--rm-spacer-w)');
+                cols.push('var(--rm-cell)');
+            }
+            return cols.join(' ');
+        }
+
+        function applyTrackGrid() {
+            const value = buildGridCols(STEPS);
+            document.querySelectorAll('.track').forEach(track => {
+                track.style.setProperty('--rm-grid-cols', value);
+            });
+        }
+
+        function createSequencer() {
+            const sequencer = document.querySelector('.sequencer');
+            const tracks = sequencer.querySelectorAll('.track');
+
+            tracks.forEach((track) => {
+                track.querySelectorAll('.step, .track-spacer').forEach(n => n.remove());
+            });
+
+            instruments.forEach((inst, i) => {
+                for (let j = 0; j < STEPS; j++) {
+                    if (j > 0 && j % 4 === 0) {
+                        const spacer = document.createElement('div');
+                        spacer.className = 'track-spacer';
+                        tracks[i].appendChild(spacer);
+                    }
+
+                    const step = document.createElement('div');
+                    step.className = 'step';
+                    step.dataset.instrument = inst;
+                    step.dataset.step = j;
+                    step.addEventListener('pointerdown', toggleStep);
+                    tracks[i].appendChild(step);
+                }
+            });
+            applyTrackGrid();
+        }
+
+        function toggleStep(e) {
+            e.preventDefault();
+            const inst = e.currentTarget.dataset.instrument;
+            const step = parseInt(e.currentTarget.dataset.step);
+
+            if (!inst || isNaN(step)) return;
+
+            pattern[inst][step] = pattern[inst][step] ? 0 : 1;
+            e.currentTarget.classList.toggle('active');
+        }
+
+        function fitToSteps(arr, n) {
+            const out = new Array(n).fill(0);
+            const len = Math.min(arr.length, n);
+            for (let i = 0; i < len; i++) out[i] = arr[i] ? 1 : 0;
+            return out;
+        }
+
+        function tilePresetRow(row, n) {
+            if (n <= row.length) return fitToSteps(row, n);
+            const out = new Array(n).fill(0);
+            for (let i = 0; i < n; i++) out[i] = row[i % row.length] ? 1 : 0;
+            return out;
+        }
+
+        function loadPresetData(presetObj) {
+            instruments.forEach(inst => {
+                const row = presetObj[inst] || [];
+                pattern[inst] = tilePresetRow(row, STEPS);
+            });
+        }
+
+        function resizePatternsTo(newSteps) {
+            instruments.forEach(inst => {
+                pattern[inst] = fitToSteps(pattern[inst] || [], newSteps);
+            });
+        }
+
+        function setSteps(newSteps) {
+            newSteps = Math.max(MIN_STEPS, Math.min(MAX_STEPS, Math.round(newSteps)));
+            if (newSteps === STEPS) return;
+            const wasPlaying = isPlaying;
+            if (wasPlaying) pause();
+            STEPS = newSteps;
+            currentStep = 0;
+            resizePatternsTo(STEPS);
+            createSequencer();
+            updatePattern();
+            const stepsValueEl = document.getElementById('stepsValue');
+            if (stepsValueEl) stepsValueEl.textContent = String(STEPS);
+            const minusBtn = document.getElementById('stepsMinus');
+            const plusBtn = document.getElementById('stepsPlus');
+            if (minusBtn) minusBtn.disabled = STEPS <= MIN_STEPS;
+            if (plusBtn) plusBtn.disabled = STEPS >= MAX_STEPS;
+            updateStatusDisplay('pattern', STEPS + ' STEPS');
+            if (wasPlaying) play();
+        }
+
+        function updatePattern() {
+            instruments.forEach(inst => {
+                pattern[inst].forEach((value, step) => {
+                    const element = document.querySelector(`[data-instrument="${inst}"][data-step="${step}"]`);
+                    if (element) {
+                        if (value) {
+                            element.classList.add('active');
+                        } else {
+                            element.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        function playSound(inst) {
+            if (!audioContext) return;
+            
+            const now = audioContext.currentTime;
+            
+            switch(inst) {
+                case 'kick':
+                    const kickOsc = audioContext.createOscillator();
+                    const kickGain = audioContext.createGain();
+                    kickOsc.connect(kickGain);
+                    kickGain.connect(audioContext.destination);
+                    kickOsc.frequency.setValueAtTime(60, now);
+                    kickOsc.frequency.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    kickGain.gain.setValueAtTime(1, now);
+                    kickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    kickOsc.start(now);
+                    kickOsc.stop(now + 0.5);
+                    break;
+                    
+                case 'snare':
+                    const snareBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+                    const snareData = snareBuffer.getChannelData(0);
+                    for (let i = 0; i < snareBuffer.length; i++) {
+                        snareData[i] = Math.random() * 2 - 1;
+                    }
+                    const snareSource = audioContext.createBufferSource();
+                    snareSource.buffer = snareBuffer;
+                    const snareGain = audioContext.createGain();
+                    snareSource.connect(snareGain);
+                    snareGain.connect(audioContext.destination);
+                    snareGain.gain.setValueAtTime(0.3, now);
+                    snareGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    snareSource.start(now);
+                    break;
+                    
+                case 'hihat':
+                case 'openhat':
+                    const hihatBuffer = audioContext.createBuffer(1, audioContext.sampleRate * (inst === 'openhat' ? 0.3 : 0.05), audioContext.sampleRate);
+                    const hihatData = hihatBuffer.getChannelData(0);
+                    for (let i = 0; i < hihatBuffer.length; i++) {
+                        hihatData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.1));
+                    }
+                    const hihatSource = audioContext.createBufferSource();
+                    hihatSource.buffer = hihatBuffer;
+                    const hihatGain = audioContext.createGain();
+                    const hihatFilter = audioContext.createBiquadFilter();
+                    hihatFilter.type = 'highpass';
+                    hihatFilter.frequency.value = 8000;
+                    hihatSource.connect(hihatFilter);
+                    hihatFilter.connect(hihatGain);
+                    hihatGain.connect(audioContext.destination);
+                    hihatGain.gain.setValueAtTime(0.1, now);
+                    hihatGain.gain.exponentialRampToValueAtTime(0.01, now + (inst === 'openhat' ? 0.3 : 0.05));
+                    hihatSource.start(now);
+                    break;
+                    
+                case 'clap':
+                    const clapBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+                    const clapData = clapBuffer.getChannelData(0);
+                    for (let i = 0; i < clapBuffer.length; i++) {
+                        clapData[i] = Math.random() * 2 - 1;
+                    }
+                    const clapSource = audioContext.createBufferSource();
+                    clapSource.buffer = clapBuffer;
+                    const clapGain = audioContext.createGain();
+                    clapSource.connect(clapGain);
+                    clapGain.connect(audioContext.destination);
+                    clapGain.gain.setValueAtTime(0.2, now);
+                    clapGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    clapSource.start(now);
+                    break;
+                    
+                case 'rim':
+                    const rimBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.03, audioContext.sampleRate);
+                    const rimData = rimBuffer.getChannelData(0);
+                    for (let i = 0; i < rimBuffer.length; i++) {
+                        rimData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioContext.sampleRate * 0.01));
+                    }
+                    const rimSource = audioContext.createBufferSource();
+                    rimSource.buffer = rimBuffer;
+                    const rimGain = audioContext.createGain();
+                    const rimFilter = audioContext.createBiquadFilter();
+                    rimFilter.type = 'highpass';
+                    rimFilter.frequency.value = 3000;
+                    rimSource.connect(rimFilter);
+                    rimFilter.connect(rimGain);
+                    rimGain.connect(audioContext.destination);
+                    rimGain.gain.setValueAtTime(0.4, now);
+                    rimGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+                    rimSource.start(now);
+                    break;
+                    
+                case 'tom':
+                    const tomOsc = audioContext.createOscillator();
+                    const tomGain = audioContext.createGain();
+                    tomOsc.connect(tomGain);
+                    tomGain.connect(audioContext.destination);
+                    tomOsc.frequency.setValueAtTime(150, now);
+                    tomOsc.frequency.exponentialRampToValueAtTime(50, now + 0.15);
+                    tomGain.gain.setValueAtTime(0.6, now);
+                    tomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    tomOsc.start(now);
+                    tomOsc.stop(now + 0.15);
+                    break;
+                    
+                case 'cowbell':
+                    const cowbellOsc1 = audioContext.createOscillator();
+                    const cowbellOsc2 = audioContext.createOscillator();
+                    const cowbellGain = audioContext.createGain();
+                    const cowbellFilter = audioContext.createBiquadFilter();
+                    cowbellFilter.type = 'bandpass';
+                    cowbellFilter.frequency.value = 800;
+                    cowbellOsc1.frequency.value = 540;
+                    cowbellOsc2.frequency.value = 800;
+                    cowbellOsc1.connect(cowbellFilter);
+                    cowbellOsc2.connect(cowbellFilter);
+                    cowbellFilter.connect(cowbellGain);
+                    cowbellGain.connect(audioContext.destination);
+                    cowbellGain.gain.setValueAtTime(0.4, now);
+                    cowbellGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    cowbellOsc1.start(now);
+                    cowbellOsc2.start(now);
+                    cowbellOsc1.stop(now + 0.1);
+                    cowbellOsc2.stop(now + 0.1);
+                    break;
+            }
+        }
+
+        function advanceSequencer() {
+            document.querySelectorAll('.step').forEach(el => {
+                el.classList.remove('playing');
+            });
+            
+            instruments.forEach(inst => {
+                const el = document.querySelector(`[data-instrument="${inst}"][data-step="${currentStep}"]`);
+                if (el) {
+                    el.classList.add('playing');
+                    
+                    if (pattern[inst][currentStep] && !mutedTracks[inst]) {
+                        playSound(inst);
+                    }
+                }
+            });
+            
+            currentStep = (currentStep + 1) % STEPS;
+        }
+
+        function play() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (!isPlaying) {
+                isPlaying = true;
+                const tempo = parseInt(document.getElementById('tempoSlider').value);
+                const interval = (60 / tempo / 4) * 1000;
+                
+                updateStatusDisplay('playing');
+                document.getElementById('playBtn').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="0" width="3.5" height="12"/><rect x="7.5" y="0" width="3.5" height="12"/></svg> PAUSE';
+                
+                advanceSequencer();
+                intervalId = setInterval(advanceSequencer, interval);
+            } else {
+                pause();
+            }
+        }
+
+        function pause() {
+            isPlaying = false;
+            clearInterval(intervalId);
+            updateStatusDisplay('stopped');
+            document.getElementById('playBtn').innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="2,0 12,6 2,12"/></svg> PLAY';
+        }
+
+        function stop() {
+            pause();
+            currentStep = 0;
+            document.querySelectorAll('.step').forEach(el => {
+                el.classList.remove('playing');
+            });
+        }
+
+        function clear() {
+            instruments.forEach(inst => {
+                pattern[inst].fill(0);
+            });
+            updatePattern();
+            updateStatusDisplay('pattern', 'EMPTY');
+            showStatus('PATTERN CLEARED', 'success');
+        }
+
+        function randomize() {
+            const density = Math.random();
+            
+            instruments.forEach((inst) => {
+                pattern[inst] = new Array(STEPS).fill(0);
+                
+                switch(inst) {
+                    case 'kick':
+                        for (let i = 0; i < STEPS; i += 4) {
+                            if (Math.random() > 0.2) pattern[inst][i] = 1;
+                        }
+                        for (let i = 0; i < STEPS; i++) {
+                            if (i % 4 !== 0 && Math.random() > 0.85) {
+                                pattern[inst][i] = 1;
+                            }
+                        }
+                        break;
+                        
+                    case 'snare':
+                        for (let i = 4; i < STEPS; i += 8) {
+                            if (Math.random() > 0.1) pattern[inst][i] = 1;
+                        }
+                        break;
+                        
+                    case 'hihat':
+                        const hihatPattern = density > 0.5 ? 2 : 4;
+                        for (let i = 0; i < STEPS; i += hihatPattern) {
+                            if (Math.random() > 0.1) pattern[inst][i] = 1;
+                        }
+                        break;
+                        
+                    case 'openhat':
+                        for (let i = 0; i < STEPS; i++) {
+                            if (Math.random() > 0.9) pattern[inst][i] = 1;
+                        }
+                        break;
+                        
+                    case 'clap':
+                        if (Math.random() > 0.5) {
+                            for (let i = 4; i < STEPS; i += 8) {
+                                if (Math.random() > 0.3) pattern[inst][i] = 1;
+                            }
+                        }
+                        break;
+                        
+                    case 'rim':
+                        for (let i = 0; i < STEPS; i++) {
+                            if (Math.random() > 0.92) pattern[inst][i] = 1;
+                        }
+                        break;
+                        
+                    case 'tom':
+                        if (Math.random() > 0.6) {
+                            for (let i = 0; i < STEPS; i++) {
+                                if (Math.random() > 0.88) pattern[inst][i] = 1;
+                            }
+                        }
+                        break;
+                        
+                    case 'cowbell':
+                        if (Math.random() > 0.7) {
+                            for (let i = 3; i < STEPS; i += 4) {
+                                if (Math.random() > 0.7) pattern[inst][i] = 1;
+                            }
+                        }
+                        break;
+                }
+            });
+            
+            updatePattern();
+            updateStatusDisplay('success', 'RANDOMIZED');
+            updateStatusDisplay('pattern', 'RANDOM');
+            showStatus('RANDOM PATTERN GENERATED', 'success');
+        }
+
+        async function generateBeat() {
+            const input = document.getElementById('beatInput').value;
+            if (!input.trim()) {
+                showStatus('ENTER BEAT DESCRIPTION', 'error');
+                updateStatusDisplay('error');
+                return;
+            }
+            
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = 'ANALYZING...';
+            
+            updateStatusDisplay('generating', null, 20);
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                updateStatusDisplay('generating', null, 50);
+                
+                const inputLower = input.toLowerCase();
+                let detectedStyle = null;
+                let maxScore = 0;
+                
+                for (const [style, keywords] of Object.entries(styleKeywords)) {
+                    let score = 0;
+                    keywords.forEach(keyword => {
+                        if (inputLower.includes(keyword)) {
+                            score += keyword.length;
+                        }
+                    });
+                    if (score > maxScore) {
+                        maxScore = score;
+                        detectedStyle = style;
+                    }
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                updateStatusDisplay('generating', null, 80);
+                
+                if (!detectedStyle) {
+                    if (inputLower.includes('fast') || inputLower.includes('quick')) {
+                        detectedStyle = 'dnb';
+                    } else if (inputLower.includes('slow') || inputLower.includes('chill')) {
+                        detectedStyle = 'minimal';
+                    } else if (inputLower.includes('dance') || inputLower.includes('club')) {
+                        detectedStyle = 'house';
+                    } else {
+                        detectedStyle = 'techno';
+                    }
+                }
+                
+                loadPresetData(presets[detectedStyle]);
+
+                instruments.forEach(inst => {
+                    for (let i = 0; i < STEPS; i++) {
+                        if (Math.random() < 0.05) {
+                            pattern[inst][i] = pattern[inst][i] ? 0 : 1;
+                        }
+                    }
+                });
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const styleName = detectedStyle.toUpperCase();
+                updatePattern();
+                updateStatusDisplay('success', 'GENERATED');
+                updateStatusDisplay('pattern', styleName + ' STYLE');
+                showStatus(`${styleName} PATTERN CREATED`, 'success');
+                
+            } catch (error) {
+                console.error('Generation error:', error);
+                showStatus('USING RANDOM PATTERN', 'success');
+                updateStatusDisplay('success', 'RANDOM');
+                randomize();
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'GENERATE';
+            }
+        }
+
+        function toggleMute(instrument) {
+            mutedTracks[instrument] = !mutedTracks[instrument];
+            
+            const muteBtn = document.querySelector(`.mute-btn[data-instrument="${instrument}"]`);
+            const track = document.querySelector(`.track[data-instrument="${instrument}"]`);
+            
+            if (mutedTracks[instrument]) {
+                muteBtn.classList.add('muted');
+                track.classList.add('muted');
+            } else {
+                muteBtn.classList.remove('muted');
+                track.classList.remove('muted');
+            }
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message show ${type}`;
+            
+            setTimeout(() => {
+                statusEl.classList.remove('show');
+            }, 3000);
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('stopBtn').addEventListener('click', stop);
+        document.getElementById('clearBtn').addEventListener('click', clear);
+        document.getElementById('randomBtn').addEventListener('click', randomize);
+        document.getElementById('generateBtn').addEventListener('click', generateBeat);
+        
+        document.getElementById('beatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') generateBeat();
+        });
+        
+        document.getElementById('tempoSlider').addEventListener('input', (e) => {
+            const tempo = e.target.value;
+            document.getElementById('tempoValue').textContent = tempo;
+            updateStatusDisplay('tempo', tempo);
+            
+            if (isPlaying) {
+                pause();
+                play();
+            }
+        });
+        
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.dataset.preset;
+                
+                if (presets[preset]) {
+                    loadPresetData(presets[preset]);
+                    updatePattern();
+
+                    updateStatusDisplay('success', preset.toUpperCase());
+                    updateStatusDisplay('pattern', preset.toUpperCase());
+                    showStatus(`${preset.toUpperCase()} LOADED`, 'success');
+                }
+            });
+        });
+
+        document.querySelectorAll('.mute-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const instrument = btn.dataset.instrument;
+                toggleMute(instrument);
+            });
+        });
+
+        const stepsMinusBtn = document.getElementById('stepsMinus');
+        const stepsPlusBtn = document.getElementById('stepsPlus');
+        stepsMinusBtn.addEventListener('click', () => setSteps(STEPS - 1));
+        stepsPlusBtn.addEventListener('click', () => setSteps(STEPS + 1));
+
+        createSequencer();
+        document.getElementById('stepsValue').textContent = String(STEPS);
+        stepsMinusBtn.disabled = STEPS <= MIN_STEPS;
+        stepsPlusBtn.disabled = STEPS >= MAX_STEPS;
+        updateStatusDisplay('ready');
+    </script>
+</body>
+</html>
