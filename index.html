@@ -295,9 +295,9 @@
         }
 
         .brand-logo {
-            height: 32px;
+            height: 20px;
             width: auto;
-            opacity: 0.55;
+            opacity: 0.45;
             filter: brightness(0.7);
             pointer-events: none;
             user-select: none;
@@ -1007,6 +1007,10 @@
             .logo {
                 font-size: 24px;
                 letter-spacing: 5px;
+            }
+
+            .brand-logo {
+                height: 16px;
             }
 
             .subtitle {
@@ -2238,6 +2242,34 @@
         stepsMinusBtn.disabled = STEPS <= MIN_STEPS;
         stepsPlusBtn.disabled = STEPS >= MAX_STEPS;
         updateStatusDisplay('ready');
+
+        const starterExamples = [
+            { name: 'FOUR ON FLOOR', data: { kick: [1,0,0,0,1,0,0,0], snare: [0,0,0,0,1,0,0,0], hihat: [0,0,1,0,0,0,1,0] } },
+            { name: 'BOOM BAP',     data: { kick: [1,0,0,0,0,0,1,0], snare: [0,0,0,0,1,0,0,0], hihat: [1,0,1,0,1,0,1,0] } },
+            { name: 'DISCO',        data: { kick: [1,0,0,0,1,0,0,0], hihat: [0,1,0,1,0,1,0,1], clap: [0,0,0,0,1,0,0,0], openhat: [0,0,0,0,0,0,0,1] } },
+            { name: 'MINIMAL',      data: { kick: [1,0,0,0,1,0,0,0], hihat: [0,0,0,1,0,0,0,1], rim: [0,1,0,0,0,1,0,0] } },
+            { name: 'BREAK',        data: { kick: [1,0,0,0,0,0,1,0], snare: [0,0,0,0,1,0,0,0], clap: [0,0,0,0,1,0,0,0], hihat: [0,1,1,0,0,1,1,0] } },
+            { name: 'LATIN',        data: { kick: [1,0,0,1,0,0,1,0], rim: [0,0,1,0,0,0,1,0], cowbell: [0,1,0,0,1,0,0,1] } }
+        ];
+
+        function loadStarterExample() {
+            const pick = starterExamples[Math.floor(Math.random() * starterExamples.length)];
+            const full = {};
+            instruments.forEach(inst => { full[inst] = pick.data[inst] || new Array(8).fill(0); });
+            loadPresetData(full);
+            updatePattern();
+            updateStatusDisplay('pattern', pick.name);
+        }
+
+        loadStarterExample();
+
+        function autoplayOnFirstGesture(e) {
+            if (e.target && e.target.closest && e.target.closest('#playBtn, #stopBtn')) return;
+            if (isPlaying) return;
+            play();
+        }
+        document.addEventListener('pointerdown', autoplayOnFirstGesture, { once: true, capture: true });
+        document.addEventListener('keydown', autoplayOnFirstGesture, { once: true, capture: true });
     </script>
 </body>
 </html>
