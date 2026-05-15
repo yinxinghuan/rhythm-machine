@@ -2263,13 +2263,38 @@
 
         loadStarterExample();
 
-        function autoplayOnFirstGesture(e) {
-            if (e.target && e.target.closest && e.target.closest('#playBtn, #stopBtn')) return;
-            if (isPlaying) return;
-            play();
+        let pausedByVisibility = false;
+
+        function startIfHidden() {
+            if (document.hidden) return false;
+            if (!isPlaying) play();
+            return true;
         }
-        document.addEventListener('pointerdown', autoplayOnFirstGesture, { once: true, capture: true });
-        document.addEventListener('keydown', autoplayOnFirstGesture, { once: true, capture: true });
+
+        function unlockAudio() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().catch(() => {});
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (isPlaying) {
+                    pausedByVisibility = true;
+                    pause();
+                }
+            } else {
+                if (pausedByVisibility || !isPlaying) {
+                    pausedByVisibility = false;
+                    if (!isPlaying) play();
+                }
+            }
+        });
+
+        document.addEventListener('pointerdown', unlockAudio, { capture: true });
+        document.addEventListener('keydown', unlockAudio, { capture: true });
+
+        startIfHidden();
     </script>
 </body>
 </html>
