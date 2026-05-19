@@ -255,6 +255,24 @@
             animation: textGlow 0.3s ease-out;
         }
 
+        /* First-load hint line — pulses inside the status display until the
+           player taps the grid, then collapses out. */
+        .status-line.status-hint {
+            animation: rm-hint-pulse 1.6s ease-in-out infinite;
+        }
+        .status-line.status-hint .status-text {
+            text-shadow: 0 0 8px rgba(142, 207, 142, 0.9);
+        }
+        .status-line.status-hint.hidden {
+            opacity: 0;
+            animation: none;
+            transition: opacity 0.5s ease;
+        }
+        @keyframes rm-hint-pulse {
+            0%, 100% { opacity: 0.55; }
+            50%      { opacity: 1; }
+        }
+
         @keyframes textGlow {
             0%, 100% { 
                 text-shadow: 0 0 6px rgba(122, 173, 122, 0.5);
@@ -1422,6 +1440,10 @@
                         <div class="status-icon" id="statusIcon3"></div>
                         <div class="status-text" id="statusText3">PATTERN: EMPTY</div>
                     </div>
+                    <div class="status-line status-hint" id="statusHint">
+                        <div class="status-icon"></div>
+                        <div class="status-text">→ TAP GRID TO BEGIN</div>
+                    </div>
                     <div class="status-bar">
                         <div class="status-bar-fill" id="statusBar"></div>
                     </div>
@@ -1748,6 +1770,9 @@
 
         function toggleStep(e) {
             e.preventDefault();
+            // First grid touch: fade the "TAP GRID TO BEGIN" status hint.
+            const hint = document.getElementById('statusHint');
+            if (hint && !hint.classList.contains('hidden')) hint.classList.add('hidden');
             const inst = e.currentTarget.dataset.instrument;
             const step = parseInt(e.currentTarget.dataset.step);
 
